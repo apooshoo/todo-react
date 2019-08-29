@@ -2,9 +2,15 @@ class ListItems extends React.Component{
     constructor(){
         super()
     }
+
+    // test(){
+    //     console.log('testing')
+    //     console.log(event.target)
+    //     console.log(event.key)
+    // }
     render(){
         let list = this.props.list.map((item, index)=>{
-            return <li key={index}>{item}</li>
+            return <li key={index} index={index} onClick={() => {this.props.deleteItem(event.target.attributes)}}>{item}</li>
         })
 
         return(
@@ -13,6 +19,7 @@ class ListItems extends React.Component{
             </ul>
     )};
 }
+
 class List extends React.Component {
   constructor(){
     super()
@@ -22,6 +29,28 @@ class List extends React.Component {
       list : []
     }
   }
+
+  deleteItem(item){
+    console.log('deleting item!')
+    console.log(item.index)
+    let list = [...this.state.list];
+    //^^ spread syntax
+    console.log("list before delete", list);
+    //^^ copy state
+
+    list.splice(item.index, 1);
+    console.log("list after delete", list);
+    //^^ delete
+
+    this.setState({list: list});
+    // console.log("result:", this.state.list);
+    //^^ save
+
+
+
+  }
+
+
 
   addItem(){
     console.log('adding item');
@@ -38,20 +67,25 @@ class List extends React.Component {
     console.log('input:', input)
     let word = this.state.word;
     word = input;
-    this.setState({word: word});
+    if(word.length<=10){
+        this.setState({word: word});
+    } else {
+        alert("max limit 10 reached");
+    };
+  }
+
+  componentDidUpdate(){
+    console.log("state:", this.state);
   }
 
 
-
   render() {
-      // render the list with a map() here
-
       console.log("rendering");
       return (
         <div className="list">
           <input onChange={()=>{this.changeHandler()}} value={this.state.word}/>
           <button onClick={()=>{this.addItem()}}>add item</button>
-          <ListItems list={this.state.list}/>
+          <ListItems deleteItem={(item)=>{this.deleteItem(item)}} list={this.state.list}/>
         </div>
       );
   }
