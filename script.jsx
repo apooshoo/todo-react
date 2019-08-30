@@ -21,7 +21,8 @@ class List extends React.Component {
 
     this.state = {
       word:"",
-      list : []
+      list : [],
+      error: ""
     }
   }
 
@@ -60,7 +61,7 @@ class List extends React.Component {
     if(word.length<=10){
         this.setState({word: word});
     } else {
-        alert("max limit 10 reached");
+        this.setState({error: "error: max chars: 10"})
     };
   }
 
@@ -75,6 +76,7 @@ class List extends React.Component {
         <div className="list">
           <input onChange={()=>{this.changeHandler()}} value={this.state.word}/>
           <button onClick={()=>{this.addItem()}}>add item</button>
+          <p>{this.state.error}</p>
           <ListItems deleteItem={(item)=>{this.deleteItem(item)}} list={this.state.list}/>
         </div>
       );
