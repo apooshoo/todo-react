@@ -3,15 +3,10 @@ class ListItems extends React.Component{
         super()
     }
 
-    // test(){
-    //     console.log('testing')
-    //     console.log(event.target)
-    //     console.log(event.key)
-    // }
     render(){
         let list = this.props.list.map((item, index)=>{
             return <li key={index} index={index} onClick={() => {this.props.deleteItem(event.target.attributes)}}>{item}</li>
-        })
+        });
 
         return(
             <ul>
@@ -31,8 +26,8 @@ class List extends React.Component {
   }
 
   deleteItem(item){
-    console.log('deleting item!')
-    console.log(item.index)
+    console.log('deleting item!');
+    console.log(item.index);
     let list = [...this.state.list];
     //^^ spread syntax
     console.log("list before delete", list);
@@ -45,12 +40,7 @@ class List extends React.Component {
     this.setState({list: list});
     // console.log("result:", this.state.list);
     //^^ save
-
-
-
   }
-
-
 
   addItem(){
     console.log('adding item');
