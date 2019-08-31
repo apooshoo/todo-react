@@ -1,11 +1,18 @@
 class ListItems extends React.Component{
-    constructor(){
-        super()
+
+    deleteItem(item){
+        this.props.deleteItem(item);
+    }
+
+    timeSince(item){
+        return moment(item.created_at).fromNow();
     }
 
     render(){
         let list = this.props.list.map((item, index)=>{
-            return <li key={index} index={index} onClick={() => {this.props.deleteItem(event.target.attributes)}}>{item}</li>
+            return(
+                <li key={index} index={index} onClick={() => {this.deleteItem(event.target.attributes)}}>Text: {item.text} Posted: {this.timeSince(item)}</li>
+             )
         });
 
         return(
@@ -20,7 +27,12 @@ class List extends React.Component {
     super()
 
     this.state = {
-      word:"",
+      item: {
+        text: "",
+        done: null,
+        created_at: null,
+        updated_at: null
+      },
       list : [],
       error: ""
     }
@@ -45,21 +57,31 @@ class List extends React.Component {
 
   addItem(){
     console.log('adding item');
-    let word = this.state.word;
-    console.log("word:", word);
-    let list = this.state.list.concat(word)
+    let item = this.state.item;
+    console.log("item:", item);
+    let list = this.state.list.concat(item)
     console.log("list:", list);
     this.setState({list: list});
-    this.setState({word: ""});
+    this.setState({item: {
+        text: "",
+        done: null,
+        created_at: null,
+        updated_at: null
+      }});
   }
 
   changeHandler(){
     let input = event.target.value;
     console.log('input:', input)
-    let word = this.state.word;
-    word = input;
-    if(word.length<=10){
-        this.setState({word: word});
+    let item = this.state.item;
+    item = {
+        text: input,
+        done: false,
+        created_at: moment().format(),
+        updated_at: moment().format()
+    };
+    if(item.text.length<=10){
+        this.setState({item: item});
     } else {
         this.setState({error: "error: max chars: 10"})
     };
@@ -71,10 +93,10 @@ class List extends React.Component {
 
 
   render() {
-      console.log("rendering");
+      console.log(moment().format())
       return (
         <div className="list">
-          <input onChange={()=>{this.changeHandler()}} value={this.state.word}/>
+          <input onChange={()=>{this.changeHandler()}} value={this.state.item.text}/>
           <button onClick={()=>{this.addItem()}}>add item</button>
           <p>{this.state.error}</p>
           <ListItems deleteItem={(item)=>{this.deleteItem(item)}} list={this.state.list}/>
