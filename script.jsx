@@ -1,7 +1,7 @@
 class ListItems extends React.Component{
 
-    deleteItem(item){
-        this.props.deleteItem(item);
+    deleteItem(index){
+        this.props.deleteItem(index);
     }
 
     timeSince(item){
@@ -11,13 +11,28 @@ class ListItems extends React.Component{
     render(){
         let list = this.props.list.map((item, index)=>{
             return(
-                <li key={index} index={index} onClick={() => {this.deleteItem(event.target.attributes)}}>Text: {item.text} Posted: {this.timeSince(item)}</li>
+                <li key={index} onClick={() => {this.deleteItem(index)}}>Text: {item.text} Posted: {this.timeSince(item)}</li>
              )
         });
 
         return(
             <ul>
                 {list}
+            </ul>
+    )};
+}
+
+class DeletedItems extends React.Component{
+    timeSince(item){
+        return moment(item.updated_at).fromNow();
+    }
+    render(){
+        let deleteList = this.props.deleteList.map((item, index) => {
+            return <li key={index}>Text: {item.text} Deleted: {this.timeSince(item)}</li>
+        });
+        return(
+            <ul>
+                {deleteList}
             </ul>
     )};
 }
@@ -34,24 +49,30 @@ class List extends React.Component {
         updated_at: null
       },
       list : [],
+      deleteList: [],
       error: ""
     }
   }
 
-  deleteItem(item){
+  deleteItem(index){
     console.log('deleting item!');
-    console.log(item.index);
+    console.log('item index', index);
+
+    let deleteList = this.state.deleteList;
+
     let list = [...this.state.list];
-    //^^ spread syntax
-    console.log("list before delete", list);
     //^^ copy state
 
-    list.splice(item.index, 1);
-    console.log("list after delete", list);
+    console.log("pushing into deletelist", list[index])
+    deleteList = deleteList.concat(list[index])
+    this.setState({deleteList: deleteList})
+    console.log("deletelist after", this.state.deletelist)
+    // ^^history insert
+
+    list.splice(index, 1);
     //^^ delete
 
     this.setState({list: list});
-    // console.log("result:", this.state.list);
     //^^ save
   }
 
@@ -99,7 +120,10 @@ class List extends React.Component {
           <input onChange={()=>{this.changeHandler()}} value={this.state.item.text}/>
           <button onClick={()=>{this.addItem()}}>add item</button>
           <p>{this.state.error}</p>
-          <ListItems deleteItem={(item)=>{this.deleteItem(item)}} list={this.state.list}/>
+          <p>Items Count: {this.state.list.length}</p>
+          <ListItems deleteItem={(index)=>{this.deleteItem(index)}} list={this.state.list}/>
+          <p>Deleted Items Count: {this.state.deleteList.length}</p>
+          <DeletedItems deleteList={this.state.deleteList}/>
         </div>
       );
   }
