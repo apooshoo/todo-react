@@ -20,8 +20,22 @@ class ListItems extends React.Component{
         this.props.fillCheckBox(event, index);
     }
 
+    setTimer(event, index){
+        this.props.setTimer(event, index);
+    }
+
+    submitTimer(event, index){
+        this.props.submitTimer(event, index);
+    }
+
+    checkTimer(event, index){
+        this.props.checkTimer(event, index);
+    }
 
     render(){
+        let timeNow = moment().format();
+        timeNow = timeNow.substring(0, 19);
+        console.log(timeNow);
         let list = this.props.list.map((item, index)=>{
             return(
                 <li className="list-group-item col-4 offset-2 w-100" key={index}>
@@ -33,6 +47,10 @@ class ListItems extends React.Component{
                     </div>
                     <div className="row">
                         <small className="col offset-2">{item.error}</small>
+                    </div>
+                    <div className="form-group row">
+                        <input className="form-control col-8 offset-2" type="datetime-local" defaultValue={timeNow} onChange={()=>{this.setTimer(event, index)}}/>
+                        <button className="btn btn-light col-2" onClick={()=>{this.submitTimer(event, index)}}>Timer</button>
                     </div>
                 </li>
              )
@@ -52,7 +70,7 @@ class DeletedItems extends React.Component{
 
     fillCheckBox(event, item){
         let checkBox = event.target;
-        if(item.done === false){
+        if(item.done === true){
             return 'checkbox-checked-regular-24.png';
         } else{
             return 'checkbox-regular-24.png';
@@ -88,13 +106,69 @@ class List extends React.Component {
         done: null,
         created_at: null,
         updated_at: null,
-        error: null
+        error: null,
+        timer: {
+            value: null,
+            status: 'off'
+        }
       },
       list : [],
       deleteList: [],
       error: ""
     }
   }
+
+  checkTimer(event, index){
+    console.log('checking timer!');
+    let item = this.state.list[index];
+    var checkingTimer = setInterval(()=>{
+        console.log("item:", item)
+        let timeNow = moment().format();
+        timeNow = timeNow.substring(0, 19);
+        let a = moment(item.timer.value);
+        let b = moment(timeNow);
+        let timeDifference = a.diff(b);
+        console.log("time difference: ", timeDifference);
+            if(timeDifference <= 0 || item.timer.status === 'off'){
+                console.log("TIMEOUT!!");
+                this.deleteItem(index);
+                clearInterval(checkingTimer);
+            }
+    }, 1000);
+
+
+
+    console.log('out of checktimer')
+  }
+
+  submitTimer(event, index){
+        console.log('submitting timer!');
+        let btn = event.target;
+        console.log('event.target:', btn);
+        let list = [...this.state.list];
+        let item = list[index];
+        if(item.timer.status === 'off'){
+            btn.classList.remove('btn-light');
+            btn.classList.add('btn-success');
+            item.timer.status = 'on';
+            this.setState({list: list});
+            this.checkTimer(event, index);
+        } else {
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-light');
+            item.timer.status = 'off';
+            this.setState({list: list});
+        };
+    }
+
+  setTimer(event, index){
+        console.log('setting timer!');
+        let time = event.target.value;
+        let list = [...this.state.list];
+        let item = list[index];
+        item.timer.value = time;
+        this.setState({list: list});
+    }
 
   fillCheckBox(event, index){
     let checkBox = event.target;
@@ -166,7 +240,11 @@ class List extends React.Component {
         done: null,
         created_at: null,
         updated_at: null,
-        error: null
+        error: null,
+        timer: {
+            value: null,
+            status: 'off'
+        }
     }});
   }
 
@@ -178,7 +256,12 @@ class List extends React.Component {
         text: input,
         done: false,
         created_at: moment().format(),
-        updated_at: moment().format()
+        updated_at: moment().format(),
+        error: null,
+        timer: {
+            value: null,
+            status: 'off'
+        }
     };
     if(item.text.length<=10){
         this.setState({item: item});
@@ -206,7 +289,14 @@ class List extends React.Component {
 
             <div className="list">
                 <p>Items Count: {this.state.list.length}</p>
-                <ListItems deleteItem={(index)=>{this.deleteItem(index)}} editItem={(event, index)=>{this.editItem(event, index)}} fillCheckBox={(event, index)=>{this.fillCheckBox(event, index)}} list={this.state.list}/>
+                <ListItems
+                    deleteItem={(index)=>{this.deleteItem(index)}}
+                    editItem={(event, index)=>{this.editItem(event, index)}}
+                    fillCheckBox={(event, index)=>{this.fillCheckBox(event, index)}}
+                    setTimer={(event, index)=>{this.setTimer(event, index)}}
+                    submitTimer={(event, index)=>{this.submitTimer(event, index)}}
+                    checkTimer={(event, index)=>{this.checkTimer(event, index)}}
+                    list={this.state.list}/>
             </div>
 
             <div className="deleted-list">
